@@ -2,6 +2,17 @@
 #include "math.h"
 #include "string.h"
 
+typedef enum {
+    OK = 1,
+    WRONG_FORMAT,
+    NAN_GIVEN,
+    WRONG_FLAG,
+    NO_FLAG,
+    TOO_BIG,
+    COMPOSITE,
+    PRIME,
+} CODE_RESULT;
+
 int str_to_int(char s[]){
     int num = 0;
     unsigned long long digits = strlen(s);
@@ -11,60 +22,76 @@ int str_to_int(char s[]){
     return num;
 }
 
+int number_checker(char *s){
+    if (strlen(s) > 1){
+        for (int i = 0; i < strlen(s); ++i) {
+            if (s[i] < '0' || s[i] > '9'){
+                return 0;
+            }
+        }
+        return 1;
+    }
+    else{
+        return !(s[0] < '0' || s[0] > '9');
+    }
+}
 
-int format_check(int argc, char **argv){
+CODE_RESULT format_validation(int argc, char **argv){
     if (argc != 3){
         printf("Incorrect format!\nInput format:\n./program [number] [-key]\n");
-        return 0;
+        return WRONG_FORMAT;
+    }
+    if (!number_checker(argv[1])){
+        printf("Not a number given!\nInput format:\n./program [number] [-key]\n");
+        return NAN_GIVEN;
     }
     char prefix = argv[2][0];
     char letter = argv[2][1];
     if (prefix == '/' || prefix == '-'){
         if (letter == 'h' || letter == 'p' || letter == 's' || letter == 'e' || letter == 'a' || letter == 'f'){
-            return 1;
+            return OK;
         }
         printf("Flag is not valid! Possible flags: -h, -p, -s, -e, -a, -f.\n");
-        return 0;
+        return WRONG_FLAG;
     }
     printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n");
-    return 0;
+    return NO_FLAG;
 }
 
-
-void flag_h(int number){
+CODE_RESULT flag_h(int number){
     for (int i = 1; i <= 100; ++i) {
         if (number % i == 0) {
             printf("%d ", i);
         }
     }
     printf("\n");
+    return OK;
 }
 
-void flag_p(int number) {
-    int temp = 0;
+CODE_RESULT flag_p(int number) {
     for (int i = 2; i < sqrt((double) number); ++i) {
         if (number % i == 0) {
-            temp++;
             printf("The number %d is composite.\n", number);
-            break;
+            return COMPOSITE;
         }
     }
-    if (!temp) {
-        printf("The number %d is prime.\n", number);
-    }
+    printf("The number %d is prime.\n", number);
+    return PRIME;
 }
 
-void flag_s(char **argv) {
-    unsigned long long temp = strlen(argv[1]);
+CODE_RESULT flag_s(char *argv) {
+    unsigned long long temp = strlen(argv);
     for (int i = 0; i < temp; ++i) {
-        printf("%c ", argv[1][i]);
+        printf("%c ", argv[i]);
     }
     printf("\n");
+    return OK;
 }
 
-void flag_e(int number) {
+CODE_RESULT flag_e(int number) {
     if (number > 10) {
         printf("Entered number is bigger than 10!\n");
+        return TOO_BIG;
     } else {
         for (int i = 1; i <= 10; ++i) {
             for (int j = 1; j <= number; ++j) {
@@ -72,46 +99,47 @@ void flag_e(int number) {
             }
             printf("\n");
         }
+        return OK;
     }
 }
 
-void flag_a(int number) {
+CODE_RESULT flag_a(int number) {
     int temp = 0;
     for (int i = 1; i <= number; ++i) {
         temp += i;
     }
     printf("%d\n", temp);
+    return OK;
 }
 
-void flag_f(int number) {
+CODE_RESULT flag_f(int number) {
     int temp = 1;
     for (int i = 2; i <= number; ++i) {
         temp *= i;
     }
     printf("%d\n", temp);
+    return OK;
 }
 
 void flag_caller(char** argv){
     int number = str_to_int(argv[1]);
-    char **number_str = &argv[1];
+    char *number_str = argv[1];
     char flag = argv[2][1];
-    if (flag == 'h'){
-        flag_h(number);
-    }
-    else if (flag == 'p'){
-        flag_p(number);
-    }
-    else if (flag == 's'){
-        flag_s(number_str);
-    }
-    else if (flag == 'e'){
-        flag_e(number);
-    }
-    else if (flag == 'a'){
-        flag_a(number);
-    }
-    else if (flag == 'f'){
-        flag_f(number);
+    switch (flag) {
+        case 'h':
+            flag_h(number); break;
+        case 'p':
+            flag_p(number); break;
+        case 's':
+            flag_s(number_str); break;
+        case 'e':
+            flag_e(number); break;
+        case 'a':
+            flag_a(number); break;
+        case 'f':
+            flag_f(number); break;
+        default:
+            printf("Flag is not valid! Possible flags: -h, -p, -s, -e, -a, -f.\n"); break;
     }
 }
 
@@ -130,9 +158,10 @@ void greetings(){
     printf("\n\n");
 }
 
+
 int main(int argc, char **argv) {
     greetings();
-    if (format_check(argc, argv)) {
+    if (format_validation(argc, argv) == OK) {
         flag_caller(argv);
     }
     return 0;
