@@ -20,18 +20,28 @@ typedef enum{
     NEGATIVE_VALUE,
 } CODE_RESULT;
 
+int comp (const void * elem1, const void * elem2){
+    if (*(double*)elem1 < *(double*)elem2)
+        return 1;
+    else if (*(double*)elem1 > *(double*)elem2)
+        return -1;
+    else
+        return 0;
+}
+
+
 int str_to_i(char* number){
     int result = 0;
-    unsigned long long digits = strlen(number);
-    for (int i = 0; i < digits; ++i) {
+    for (int i = 0; i < strlen(number); ++i) {
         result = result * 10 + (number[i] - '0');
     }
     return result;
 }
 
 CODE_RESULT int_number_checker(char *s){
-    if (strlen(s) > 1){
-        for (int i = 0; i < strlen(s); ++i) {
+    int length = strlen(s);
+    if (length > 1){
+        for (int i = 0; i < length; ++i) {
             if (s[i] < '0' || s[i] > '9'){
                 return NAN_GIVEN;
             }
@@ -63,41 +73,25 @@ CODE_RESULT double_number_checker(char *s){
     }
 }
 
-CODE_RESULT Pythagoras(double hypo, double b, double c){
-    if (pow(hypo, 2) == (pow(b, 2) + pow(c, 2))){
-        printf("Triangle with sides:\n%lf\n%lf\n%lf\nis square\n", hypo, b, c);
+CODE_RESULT Pythagoras(double hypo, double b, double c, double epsilon){
+    if (fabs(pow(hypo, 2) - (pow(b, 2) + pow(c, 2))) < epsilon){
         return SQUARE;
     }
-    printf("Triangle with sides:\n%lf\n%lf\n%lf\nis not square\n", hypo, b, c);
     return NO_SQUARE;
 }
 
 CODE_RESULT finding_sides(double a, double b, double c, double epsilon){
-    if ((a - b) > epsilon && (a - c) > epsilon){
-        if ((a - b - c) >= epsilon){
-            printf("Triangle with this sides doesn't exist\n");
-            return NON_EXIST;
-        }
-        return Pythagoras(a, b, c);
+    if ((a - b - c) >= epsilon){
+        return NON_EXIST;
     }
-    if ((b - a) > epsilon && (b - c) > epsilon){
-        if ((b - a - c) >= epsilon){
-            printf("Triangle with this sides doesn't exist\n");
-            return NON_EXIST;
-        }
-        return Pythagoras(b, a, c);
-    }
-    if ((c - a) > epsilon && (c - b) > epsilon){
-        if ((c - a - b) >= epsilon){
-            printf("Triangle with this sides doesn't exist\n");
-            return NON_EXIST;
-        }
-        return Pythagoras(c, a, b);
-    }
-    return NO_SQUARE;
+    return OK;
 }
 
 CODE_RESULT format_validation(int argc, char **argv){
+    if (argc != 4 && argc != 6){
+        printf("Invalid format!");
+        return WRONG_FORMAT;
+    }
     char prefix = argv[1][0];
     char letter = argv[1][1];
     if (prefix == '/' || prefix == '-'){
@@ -155,35 +149,40 @@ CODE_RESULT format_validation(int argc, char **argv){
     return NO_FLAG;
 }
 
-CODE_RESULT equation(double a, double b, double c, double epsilon){
+CODE_RESULT equation(double a, double b, double c, double epsilon, double *x1, double *x2){
     // ax^2 + bx + c = 0
     double d = pow(b, 2) - 4 * a * c;
     if (d < epsilon){
         printf("NO ROOTS\n");
         return NO_ROOTS;
     }
-    double x1 = (-b + sqrt(d)) / (2 * a);
-    double x2 = (-b + sqrt(d)) / (2 * a);
-    printf("X1 = %lf X2 = %lf\n", x1, x2);
+    double sqr_d = sqrt(d);
+    *x1 = (-b + sqr_d) / (2 * a);
+    *x2 = (-b - sqr_d) / (2 * a);
     return OK;
 }
 
 CODE_RESULT combinations(double x, double y, double z, double epsilon){
     double temp;
     int counter = 0;
+    double x1, x2;
     for (int i = 0; i < 3; ++i) {
         printf("%lf %lf %lf : ", x, y, z);
-        equation(x, y, z, epsilon);
-        if (equation(x, y, z, epsilon) != OK){
+        if (equation(x, y, z, epsilon, &x1, &x2) != OK){
             counter++;
+        }
+        else{
+            printf("X1 = %lf X2 = %lf\n", x1, x2);
         }
         temp = y;
         y = z;
         z = temp;
         printf("%lf %lf %lf : ", x, y, z);
-        equation(x, y, z, epsilon);
-        if (equation(x, y, z, epsilon) != OK){
+        if (equation(x, y, z, epsilon, &x1, &x2) != OK){
             counter++;
+        }
+        else{
+            printf("X1 = %lf X2 = %lf\n", x1, x2);
         }
         temp = x;
         x = y;
@@ -223,8 +222,20 @@ CODE_RESULT flag_t(char **argv){
     double a = strtod(argv[3], NULL);
     double b = strtod(argv[4], NULL);
     double c = strtod(argv[5], NULL);
-    finding_sides(a, b, c, epsilon);
-    return OK;
+    double arr[3] = {a, b ,c};
+    qsort(arr, 3, sizeof(double), comp);
+    if(finding_sides(arr[0], arr[1], arr[2], epsilon) == OK){
+        if (Pythagoras(arr[0], arr[1], arr[2], epsilon) == SQUARE){
+            printf("Triangle with sides:\n%lf\n%lf\n%lf\nis square\n", arr[0], arr[1], arr[2]);
+            return SQUARE;
+        }
+        else{
+            printf("Triangle with sides:\n%lf\n%lf\n%lf\nis not square\n", arr[0], arr[1], arr[2]);
+            return NO_SQUARE;
+        }
+    }
+    printf("Triangle with sides:\n%lf\n%lf\n%lf\ndoesn't exist\n", arr[0], arr[1], arr[2]);
+    return NON_EXIST;
 }
 
 void flag_caller(char **argv){
@@ -261,4 +272,5 @@ int main(int argc, char **argv){
     if (format_validation(argc, argv) == OK){
         flag_caller(argv);
     }
+    return 0;
 }
