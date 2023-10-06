@@ -138,6 +138,7 @@ void greetings(){
 
 
 int main(int argc, char **argv){
+    greetings();
     if (format_validation(argc, argv) == OK){
         printer(str_to_d(argv[1]), str_to_d(argv[2]));
     }
