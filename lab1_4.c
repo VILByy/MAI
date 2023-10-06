@@ -9,12 +9,15 @@ typedef enum{
     NAN_GIVEN,
     WRONG_FORMAT,
     NO_FLAG,
-    FILE_ERROR,
+    I_FILE_ERROR,
+    O_FILE_ERROR,
     NON_TXT,
+    MEMORY_ERROR,
 }CODE_RESULT;
 
 char* PATH_transform(char* PATH){
-    for (int i = 0; i < strlen(PATH); ++i) {
+    int length = strlen(PATH);
+    for (int i = 0; i < length; ++i) {
         if (PATH[i] == '\\'){
             PATH[i] = '/';
         }
@@ -25,16 +28,24 @@ char* PATH_transform(char* PATH){
 char* get_name(char *PATH){
     char* temp = strrchr(PATH, '/');
     char* name = (char*) malloc(sizeof(char) * strlen(temp) + 5);
+    if (name == NULL){
+        return NULL;
+    }
     name[0] = 'o';
     name[1] = 'u';
     name[2] = 't';
     name[3] = '_';
-    for (int i = 0; i < strlen(temp) - 1; ++i) {
-        name[i + 4] = temp[i + 1];
+    if (temp == NULL){
+        for (int i = 0; i < strlen(PATH); ++i) {
+            name[i + 4] = temp[i];
+        }
     }
-    strcpy(temp, name);
-    free(name);
-    return temp;
+    else {
+        for (int i = 0; i < strlen(temp) - 1; ++i) {
+            name[i + 4] = temp[i + 1];
+        }
+    }
+    return name;
 }
 
 int islatin(char ch){
@@ -105,50 +116,40 @@ CODE_RESULT flag_d(FILE *input, FILE *output){
 CODE_RESULT flag_i(FILE *input, FILE *output){
     char ch;
     int counter = 0;
-    char out[300];
     while ((ch = fgetc(input)) != EOF) {
         if (islatin(ch)){
             counter++;
         }
         if (ch == '\n'){
-            itoa(counter, out, 10);
-            fputs(out, output);
-            fputc('\n', output);
+            fprintf(output, "%d\n", counter);
             counter = 0;
         }
     }
-    itoa(counter, out, 10);
-    fputs(out, output);
+    fprintf(output, "%d\n", counter);
     return OK;
 }
 
 CODE_RESULT flag_s(FILE *input, FILE *output){
     char ch;
     int counter = 0;
-    char out[300];
     while ((ch = fgetc(input)) != EOF) {
         if (!islatin(ch) && !isdigit(ch) && ch != ' '){
             counter++;
         }
         if (ch == '\n'){
-            itoa(counter, out, 10);
-            fputs(out, output);
-            fputc('\n', output);
+            fprintf(output, "%d\n", counter);
             counter = 0;
         }
     }
-    itoa(counter, out, 10);
-    fputs(out, output);
+    fprintf(output, "%d\n", counter);
     return OK;
 }
 
 CODE_RESULT flag_a(FILE *input, FILE *output){
     char ch;
-    char out[300];
     while ((ch = fgetc(input)) != EOF){
         if(!isdigit(ch)) {
-            itoa(ch, out, 16);
-            fputs(out, output);
+            fprintf(output, "%x\n", ch);
         }
         else{
             fputc(ch, output);
@@ -157,7 +158,8 @@ CODE_RESULT flag_a(FILE *input, FILE *output){
     return OK;
 }
 
-void flag_caller(char** argv){
+
+CODE_RESULT flag_caller(char** argv){
     char flag = argv[1][strlen(argv[1]) - 1];
     char* PATH_input = PATH_transform(argv[2]);
     FILE *input;
@@ -165,10 +167,20 @@ void flag_caller(char** argv){
     input = fopen(PATH_input, "r");
     int n_status;
     n_status = strlen(argv[1]) == 3 ? 1 : 0;
+    char *name = get_name(PATH_input);
+    if(name == NULL){
+        return MEMORY_ERROR;
+    }
     if (n_status == 0) {
-        output = fopen(get_name(PATH_input), "w");
+        output = fopen(name, "w");
     } else {
         output = fopen(PATH_transform(argv[3]), "w");
+    }
+    if(input == NULL){
+        return I_FILE_ERROR;
+    }
+    if(output == NULL){
+        return O_FILE_ERROR;
     }
     switch (flag) {
         case 'd':
@@ -184,10 +196,31 @@ void flag_caller(char** argv){
     }
     fclose(input);
     fclose(output);
+    free(name);
+    printf("DONE!");
+    return OK;
+}
+
+void greetings(){
+    printf("\n\n");
+    printf("----------------------------Available flags: -d, -i, -s -a------------------------------\n");
+    printf("-------------------------You have to use '/' or '-' before flag-------------------------\n");
+    printf("----------------------------You may use option 'n' before flag--------------------------\n");
+    printf("--------------------Option 'n' allows you enter path to output file---------------------\n");
+    printf("---------Otherwise it will be generated in program's directory with prefix 'out_'-------\n");
+    printf("-------Input format for : ./[program] [key] [input_path] [OPTIONAL: output_path]--------\n");
+    printf("--------------------------------------Flag info-----------------------------------------\n");
+    printf("-----------------------'d' deletes all arabic numerals from file------------------------\n");
+    printf("-----------------'i' counts how match latin letters in every string---------------------\n");
+    printf("--------'s' counts symbols different from latin letters, digits and spaces--------------\n");
+    printf("-------------'a' replaces non-digits symbols to ASCII code in hex system----------------\n");
+    printf("\n\n");
 }
 
 int main(int argc, char **argv){
+    greetings();
     if(format_validation(argc, argv) == OK){
         flag_caller(argv);
     }
+    return 0;
 }
