@@ -213,7 +213,7 @@ void greetings(){
     printf("-----------------------'d' deletes all arabic numerals from file------------------------\n");
     printf("-----------------'i' counts how match latin letters in every string---------------------\n");
     printf("--------'s' counts symbols different from latin letters, digits and spaces--------------\n");
-    printf("-------------'a' replaces non-digits symbols to ASCII code in hex system----------------\n");
+    printf("-----------'a' replaces non-digits symbols to ASCII code with hex system----------------\n");
     printf("\n\n");
 }
 
