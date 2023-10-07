@@ -63,8 +63,8 @@ double d_func(double x){
 }
 
 double integral(double (*func)(double), double epsilon, int side){
-    // side == 1 -> going from left limit
-    // side == 0 -> going from right limit
+    // side == 0 -> going from left limit
+    // side == 1 -> going from right limit
     double a = 0.0, b = 1.0;
     double res = 0;
     double acc = 2.0;
