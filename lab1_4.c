@@ -203,12 +203,12 @@ CODE_RESULT flag_caller(char** argv){
 
 void greetings(){
     printf("\n\n");
-    printf("----------------------------Available flags: -d, -i, -s -a------------------------------\n");
+    printf("----------------------------Available flags: -d, -i, -s, -a-----------------------------\n");
     printf("-------------------------You have to use '/' or '-' before flag-------------------------\n");
     printf("----------------------------You may use option 'n' before flag--------------------------\n");
     printf("--------------------Option 'n' allows you enter path to output file---------------------\n");
     printf("---------Otherwise it will be generated in program's directory with prefix 'out_'-------\n");
-    printf("-------Input format for : ./[program] [key] [input_path] [OPTIONAL: output_path]--------\n");
+    printf("------------Input format: ./[program] [key] [input_path] [OPTIONAL: output_path]--------\n");
     printf("--------------------------------------Flag info-----------------------------------------\n");
     printf("-----------------------'d' deletes all arabic numerals from file------------------------\n");
     printf("-----------------'i' counts how match latin letters in every string---------------------\n");
