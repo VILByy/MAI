@@ -24,10 +24,10 @@ int converter(int lexem, int base){
 }
 
 void ASCII_4(char* lexem, FILE* output){
-    int length = strlen(lexem);
+    int length = (int)strlen(lexem);
     int out[length];
     for (int i = 0; i < length; ++i) {
-        lexem[i] = tolower(lexem[i]);
+        lexem[i] = (char)tolower(lexem[i]);
         out[i] = converter(lexem[i], 4);
         fprintf(output, "%d", out[i]);
     }
@@ -35,7 +35,7 @@ void ASCII_4(char* lexem, FILE* output){
 }
 
 void ASCII_8(char* lexem, FILE* output){
-    int length = strlen(lexem);
+    int length = (int)strlen(lexem);
     int out[length];
     for (int i = 0; i < length; ++i) {
         out[i] = converter(lexem[i], 8);
@@ -46,13 +46,13 @@ void ASCII_8(char* lexem, FILE* output){
 
 char* all_lower(char* lexem){
     for (int i = 0; i < strlen(lexem); ++i) {
-        lexem[i] = tolower(lexem[i]);
+        lexem[i] = (char)tolower(lexem[i]);
     }
     return lexem;
 }
 
 char* PATH_transform(char* PATH){
-    int length = strlen(PATH);
+    int length = (int)strlen(PATH);
     for (int i = 0; i < length; ++i) {
         if (PATH[i] == '\\'){
             PATH[i] = '/';
@@ -62,7 +62,7 @@ char* PATH_transform(char* PATH){
 }
 
 CODE_RESULT file_extension(char *name){
-    int index = strlen(name) - 1;
+    int index = (int)strlen(name) - 1;
     if (name[index] == 't' && name[index - 1] == 'x' && name[index - 2] == 't' && name[index - 3] == '.'){
         return OK;
     }
@@ -111,7 +111,7 @@ char* lexem_finder(FILE* input){
     char c;
     int i = 0;
     while(1){
-        c = fgetc(input);
+        c = (char)fgetc(input);
         if(c == ' ' || c == '\t' || c == '\n') {
             fseek(input, ftell(input)-1, SEEK_SET);
             break;
@@ -128,7 +128,7 @@ char* lexem_finder(FILE* input){
 char trash_skipper(FILE *input){
     char c;
     while(1){
-        c = fgetc(input);
+        c = (char)fgetc(input);
         if (c == EOF){
             return EOF;
         }
@@ -141,12 +141,9 @@ char trash_skipper(FILE *input){
 }
 
 CODE_RESULT flag_r(char** argv) {
-    char *PATH_input_1 = PATH_transform(argv[2]);
-    char *PATH_input_2 = PATH_transform(argv[3]);
-    char *PATH_output = PATH_transform(argv[4]);
-    FILE *input_1 = fopen(PATH_input_1, "r");
-    FILE *input_2 = fopen(PATH_input_2, "r");
-    FILE *output = fopen(PATH_output, "w");
+    FILE *input_1 = fopen(PATH_transform(argv[2]), "r");
+    FILE *input_2 = fopen(PATH_transform(argv[3]), "r");
+    FILE *output = fopen(PATH_transform(argv[4]), "w");
     if (input_1 == NULL) {
         return FILE1_ERROR;
     }
