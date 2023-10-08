@@ -263,6 +263,7 @@ void greetings(){
     printf("----------2) For every 2nd (and non-10th) lexem writes this lexem in lower case---------\n");
     printf("-----3) For every 5th (and non-10th) lexem writes symbol`s ASCII code in octal----------\n");
     printf("-----------------In other cases lexem copies to output file-----------------------------\n");
+    printf("------------Input format for 'a': ./[program] [key] [input1_path] [output_path]---------\n");
     printf("\n\n");
 }
 
