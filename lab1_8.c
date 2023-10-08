@@ -54,7 +54,6 @@ char trash_skipper(FILE *input){
         }
     }
     fseek(input, -1, SEEK_CUR);
-    printf("%c ", c);
     return c;
 }
 
