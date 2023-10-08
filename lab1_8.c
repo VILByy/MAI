@@ -124,7 +124,6 @@ CODE_RESULT action(char** argv){
     if (output == NULL){
         return OUTPUT_FILE_ERROR;
     }
-    fprintf(output, "INPUT BASE IN10\n");
     while (1){
         char* number = number_finder(input);
         fprintf(output, "%s %d %d\n", number, numeral_system(number), converter(number, numeral_system(number)));
