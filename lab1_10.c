@@ -18,7 +18,7 @@ char* converter(long long int number, int base){
         temp /= base;
         length++;
     }
-    char* res = (char*)calloc(300, sizeof(char));
+    char* res = (char*)calloc(length + 1, sizeof(char));
     if (res == NULL) {
         printf("Memory error!");
         return NULL;
@@ -63,7 +63,7 @@ void greetings(){
 
 int main(){
     greetings();
-    char input[50];
+    char input[300];
     int base, flag;
     while(1) {
         flag = 0;
@@ -85,7 +85,7 @@ int main(){
         }
     }
     long long max = 0;
-    char max_number[50];
+    char max_number[300];
     while(1){
         flag = 0;
         scanf("%s", input);
