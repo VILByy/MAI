@@ -7,7 +7,7 @@
 typedef enum{
     OK = 1,
     WRONG_FORMAT,
-}CODE_RESULT;
+} CODE_RESULT;
 
 int number_finder(int number, int *array, int array_size){
     int res = 1001;
