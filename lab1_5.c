@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 #include "stdio.h"
 #include "string.h"
 
@@ -23,27 +24,6 @@ CODE_RESULT double_number_checker(char *s){
         }
         return OK;
     }
-}
-
-double str_to_d(char* number){
-    unsigned long long digits = strlen(number);
-    int dot_flag = 0;
-    double result = 0;
-    int j = 0;
-    for (int i = 0; i < digits; ++i) {
-        if(number[i] == '.'){
-            dot_flag = 1;
-            i++;
-        }
-        if(!dot_flag) {
-            result = result * 10 + (number[i] - '0');
-        }
-        else{
-            j++;
-            result += (number[i] - '0') * pow(10, -j);
-        }
-    }
-    return result;
 }
 
 double a_sum(double epsilon, double x){
@@ -127,8 +107,18 @@ void printer(double epsilon, double x){
     }
 }
 
+void status(CODE_RESULT flag){
+    switch (flag) {
+        case NAN_GIVEN:
+            printf("Not a number given!\n"); break;
+        case WRONG_FORMAT:
+            printf("Wrong format!\n"); break;
+        case OK:
+            printf("Done!\n"); break;
+    }
+}
+
 void greetings(){
-    printf("\n\n");
     printf("------------Input format-----------\n");
     printf("-----./[program] [epsilon] [x]-----\n");
     printf("-Program calculates 4 series for x-\n");
@@ -140,7 +130,10 @@ void greetings(){
 int main(int argc, char **argv){
     greetings();
     if (format_validation(argc, argv) == OK){
-        printer(str_to_d(argv[1]), str_to_d(argv[2]));
+        printer(strtod(argv[1], NULL), strtod(argv[2], NULL));
+    }
+    else{
+        status(format_validation(argc, argv));
     }
     return 0;
 }

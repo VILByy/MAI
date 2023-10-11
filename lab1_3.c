@@ -20,6 +20,27 @@ typedef enum{
     NEGATIVE_VALUE,
 } CODE_RESULT;
 
+void status(CODE_RESULT flag){
+    switch (flag) {
+        case WRONG_FLAG:
+            printf("Flag is not valid! Possible flags: -q, -m, -t.\n"); break;
+        case WRONG_FORMAT:
+            printf("Wrong format!\n"); break;
+        case NO_FLAG:
+            printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n"); break;
+        case NO_ROOTS:
+            printf("NO ROOTS\n"); break;
+        case NAN_GIVEN:
+            printf("Not a number given!\n"); break;
+        case NEGATIVE_VALUE:
+            printf("Negative value given!"); break;
+        case OK:
+            printf("Done!\n"); break;
+        default:
+            break;
+    }
+}
+
 int comp (const void * elem1, const void * elem2){
     if (*(double*)elem1 < *(double*)elem2)
         return 1;
@@ -39,7 +60,7 @@ int str_to_i(char* number){
 }
 
 CODE_RESULT int_number_checker(char *s){
-    int length = strlen(s);
+    int length = (int)strlen(s);
     if (length > 1){
         for (int i = 0; i < length; ++i) {
             if (s[i] < '0' || s[i] > '9'){
@@ -89,7 +110,6 @@ CODE_RESULT finding_sides(double a, double b, double c, double epsilon){
 
 CODE_RESULT format_validation(int argc, char **argv){
     if (argc != 4 && argc != 6){
-        printf("Invalid format!");
         return WRONG_FORMAT;
     }
     char prefix = argv[1][0];
@@ -97,55 +117,44 @@ CODE_RESULT format_validation(int argc, char **argv){
     if (prefix == '/' || prefix == '-'){
         if (letter == 'q'){
             if (argc != 6){
-                printf("Invalid format!\nFor flag -q input format is:\n./[program] [key] [epsilon] [number1] [number2] [number3]\n");
                 return WRONG_FORMAT;
             }
             if (double_number_checker(argv[2]) == OK && double_number_checker(argv[3]) == OK && double_number_checker(argv[4]) == OK &&
                 double_number_checker(argv[5]) == OK){
                 if (argv[2][0] == '-'){
-                    printf("Negative epsilon given!");
                     return NEGATIVE_VALUE;
                 }
                 return OK;
             }
-            printf("Not a number given!\n");
             return NAN_GIVEN;
         }
         else if (letter == 'm'){
             if (argc != 4){
-                printf("Invalid format!\nFor flag -m input format is:\n./[program] [key] [number1] [number1]\n");
                 return WRONG_FORMAT;
             }
             if (int_number_checker(argv[2]) == OK && int_number_checker(argv[3]) == OK) {
                 return OK;
             }
-            printf("Not a integer number given! Please, input integer number.\n");
             return NAN_GIVEN;
         }
         else if (letter == 't'){
             if (argc != 6){
-                printf("Invalid format!\nFor flag -t input format is:\n./[program] [key] [epsilon] [number1] [number2] [number3]\n");
                 return WRONG_FORMAT;
             }
             if (double_number_checker(argv[2]) == OK && double_number_checker(argv[3]) == OK && double_number_checker(argv[4]) == OK &&
                     double_number_checker(argv[5]) == OK){
                 if (argv[2][0] == '-'){
-                    printf("Negative epsilon given!");
                     return NEGATIVE_VALUE;
                 }
                 if (argv[3][0] == '-' || argv[4][0] == '-' || argv[5][0] == '-'){
-                    printf("Negative value given! Sides length can't be lower than 0");
                     return NEGATIVE_VALUE;
                 }
                 return OK;
             }
-            printf("Not a number given!\n");
             return NAN_GIVEN;
         }
-        printf("Flag is not valid! Possible flags: -q, -m, -t.\n");
         return WRONG_FLAG;
     }
-    printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n");
     return NO_FLAG;
 }
 
@@ -153,7 +162,6 @@ CODE_RESULT equation(double a, double b, double c, double epsilon, double *x1, d
     // ax^2 + bx + c = 0
     double d = pow(b, 2) - 4 * a * c;
     if (d < epsilon){
-        printf("NO ROOTS\n");
         return NO_ROOTS;
     }
     double sqr_d = sqrt(d);
@@ -169,6 +177,7 @@ CODE_RESULT combinations(double x, double y, double z, double epsilon){
     for (int i = 0; i < 3; ++i) {
         printf("%lf %lf %lf : ", x, y, z);
         if (equation(x, y, z, epsilon, &x1, &x2) != OK){
+            status(equation(x, y, z, epsilon, &x1, &x2));
             counter++;
         }
         else{
@@ -179,6 +188,7 @@ CODE_RESULT combinations(double x, double y, double z, double epsilon){
         z = temp;
         printf("%lf %lf %lf : ", x, y, z);
         if (equation(x, y, z, epsilon, &x1, &x2) != OK){
+            status(equation(x, y, z, epsilon, &x1, &x2));
             counter++;
         }
         else{
@@ -238,7 +248,7 @@ CODE_RESULT flag_t(char **argv){
     return NON_EXIST;
 }
 
-void flag_caller(char **argv){
+CODE_RESULT flag_caller(char **argv){
     char flag = argv[1][1];
     switch (flag) {
         case 'q':
@@ -248,12 +258,13 @@ void flag_caller(char **argv){
         case 't':
             flag_t(argv); break;
         default:
-            printf("Flag is not valid! Possible flags: -q, -m, -t.\n"); break;
+            return WRONG_FLAG;
     }
+    return OK;
 }
 
+
 void greetings(){
-    printf("\n\n");
     printf("-----------------------------Available flags: -q, -m, -t--------------------------------\n");
     printf("-------------------------You have to use '/' or '-' before flag-------------------------\n");
     printf("--------------------------------------Flag info-----------------------------------------\n");
@@ -270,7 +281,9 @@ void greetings(){
 int main(int argc, char **argv){
     greetings();
     if (format_validation(argc, argv) == OK){
-        flag_caller(argv);
+        status(flag_caller(argv));
     }
+    else
+        status(format_validation(argc, argv));
     return 0;
 }

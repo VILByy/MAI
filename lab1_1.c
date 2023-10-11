@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "math.h"
 #include "string.h"
 
@@ -13,16 +14,26 @@ typedef enum {
     PRIME,
 } CODE_RESULT;
 
-int str_to_int(char s[]){
-    int num = 0;
-    unsigned long long digits = strlen(s);
-    for (int i = 0; i < digits; ++i) {
-        num = num * 10 + (s[i] - '0');
+void status(CODE_RESULT flag){
+    switch (flag) {
+        case WRONG_FLAG:
+            printf("Flag is not valid! Possible flags: -h, -p, -s, -e, -a, -f.\n"); break;
+        case WRONG_FORMAT:
+            printf("Wrong format!\nInput format:\n./program [number] [-key]\n"); break;
+        case NAN_GIVEN:
+            printf("Not a number given!\n"); break;
+        case NO_FLAG:
+            printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n"); break;
+        case TOO_BIG:
+            printf("Entered number is bigger than 10!\n"); break;
+        case OK:
+            printf("Done!\n"); break;
+        default:
+            break;
     }
-    return num;
 }
 
-int number_checker(char *s){
+int int_number_checker(char *s){
     if (strlen(s) > 1){
         for (int i = 0; i < strlen(s); ++i) {
             if (s[i] < '0' || s[i] > '9'){
@@ -38,11 +49,9 @@ int number_checker(char *s){
 
 CODE_RESULT format_validation(int argc, char **argv){
     if (argc != 3){
-        printf("Incorrect format!\nInput format:\n./program [number] [-key]\n");
         return WRONG_FORMAT;
     }
-    if (!number_checker(argv[1])){
-        printf("Not a number given!\nInput format:\n./program [number] [-key]\n");
+    if (!int_number_checker(argv[1])){
         return NAN_GIVEN;
     }
     char prefix = argv[2][0];
@@ -51,10 +60,8 @@ CODE_RESULT format_validation(int argc, char **argv){
         if (letter == 'h' || letter == 'p' || letter == 's' || letter == 'e' || letter == 'a' || letter == 'f'){
             return OK;
         }
-        printf("Flag is not valid! Possible flags: -h, -p, -s, -e, -a, -f.\n");
         return WRONG_FLAG;
     }
-    printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n");
     return NO_FLAG;
 }
 
@@ -90,7 +97,6 @@ CODE_RESULT flag_s(char *argv) {
 
 CODE_RESULT flag_e(int number) {
     if (number > 10) {
-        printf("Entered number is bigger than 10!\n");
         return TOO_BIG;
     } else {
         for (int i = 1; i <= 10; ++i) {
@@ -122,7 +128,7 @@ CODE_RESULT flag_f(int number) {
 }
 
 void flag_caller(char** argv){
-    int number = str_to_int(argv[1]);
+    int number = strtol(argv[1], NULL, 10);
     char *number_str = argv[1];
     char flag = argv[2][1];
     switch (flag) {
@@ -133,7 +139,10 @@ void flag_caller(char** argv){
         case 's':
             flag_s(number_str); break;
         case 'e':
-            flag_e(number); break;
+            if (flag_e(number) != OK){
+                status(flag_e(number));
+            }
+            break;
         case 'a':
             flag_a(number); break;
         case 'f':
@@ -144,7 +153,6 @@ void flag_caller(char** argv){
 }
 
 void greetings(){
-    printf("\n\n");
     printf("------------------------Input format: ./program [number] [-flag]------------------------\n");
     printf("------------------------Available flags: -h, -p, -s, -e, -a, -f-------------------------\n");
     printf("-------------------------You have to use '/' or '-' before flag-------------------------\n");
@@ -163,6 +171,9 @@ int main(int argc, char **argv) {
     greetings();
     if (format_validation(argc, argv) == OK) {
         flag_caller(argv);
+    }
+    else{
+        status(format_validation(argc, argv));
     }
     return 0;
 }

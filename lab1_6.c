@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "stdio.h"
 #include "math.h"
 
@@ -25,27 +26,6 @@ CODE_RESULT double_number_checker(char *s){
     }
 }
 
-double str_to_d(char* number){
-    unsigned long long digits = strlen(number);
-    int dot_flag = 0;
-    double result = 0;
-    int j = 0;
-    for (int i = 0; i < digits; ++i) {
-        if(number[i] == '.'){
-            dot_flag = 1;
-            i++;
-        }
-        if(!dot_flag) {
-            result = result * 10 + (number[i] - '0');
-        }
-        else{
-            j++;
-            result += (number[i] - '0') * pow(10, -j);
-        }
-    }
-    return result;
-}
-
 double a_func(double x){
     return log(1 + x) / x;
 }
@@ -63,8 +43,8 @@ double d_func(double x){
 }
 
 double integral(double (*func)(double), double epsilon, int side){
-    // side == 0 -> going from left limit
-    // side == 1 -> going from right limit
+    // side == 1 -> going from left limit
+    // side == 0 -> going from right limit
     double a = 0.0, b = 1.0;
     double res = 0;
     double acc = 2.0;
@@ -116,10 +96,24 @@ void greetings(){
     printf("\n");
 }
 
+void status(CODE_RESULT flag){
+    switch (flag) {
+        case NAN_GIVEN:
+            printf("Not a number given!\n"); break;
+        case WRONG_FORMAT:
+            printf("Wrong format!\n"); break;
+        case OK:
+            printf("Done!\n"); break;
+    }
+}
+
 int main(int argc, char **argv){
     greetings();
     if(format_validation(argc, argv) == OK){
-        printer(str_to_d(argv[1]));
+        printer(strtod(argv[1], NULL));
+    }
+    else{
+        status(format_validation(argc, argv));
     }
     return 0;
 }

@@ -6,7 +6,6 @@
 typedef enum{
     OK = 1,
     WRONG_FLAG,
-    NAN_GIVEN,
     WRONG_FORMAT,
     NO_FLAG,
     I_FILE_ERROR,
@@ -16,7 +15,7 @@ typedef enum{
 }CODE_RESULT;
 
 char* PATH_transform(char* PATH){
-    int length = strlen(PATH);
+    int length = (int)strlen(PATH);
     for (int i = 0; i < length; ++i) {
         if (PATH[i] == '\\'){
             PATH[i] = '/';
@@ -48,12 +47,9 @@ char* get_name(char *PATH){
     return name;
 }
 
-int islatin(char ch){
-    return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) ? 1 : 0;
-}
 
 CODE_RESULT file_extension(char *name){
-    int index = strlen(name) - 1;
+    int index = (int)strlen(name) - 1;
     if (name[index] == 't' && name[index - 1] == 'x' && name[index - 2] == 't' && name[index - 3] == '.'){
         return OK;
     }
@@ -62,7 +58,6 @@ CODE_RESULT file_extension(char *name){
 
 CODE_RESULT format_validation(int argc, char **argv){
     if (argc < 3 || argc > 4){
-        printf("Wrong format!");
         return WRONG_FORMAT;
     }
     char prefix = argv[1][0];
@@ -74,13 +69,10 @@ CODE_RESULT format_validation(int argc, char **argv){
                     if (file_extension(argv[2]) == OK && file_extension(argv[3]) == OK) {
                         return OK;
                     }
-                    printf("Non txt file given!\n");
                     return NON_TXT;
                 }
-                printf("Flag is not valid! Possible flags: -nd, -ni, -ns, -na, -d, -i, -s, -a.\n");
                 return WRONG_FLAG;
             }
-            printf("Wrong format!");
             return WRONG_FORMAT;
         }
         if (strlen(argv[1]) == 2){
@@ -90,23 +82,19 @@ CODE_RESULT format_validation(int argc, char **argv){
                     if (file_extension(argv[2]) == OK) {
                         return OK;
                     }
-                    printf("Non txt file given!\n");
                     return NON_TXT;
                 }
-                printf("Flag is not valid! Possible flags: -nd, -ni, -ns, -na, -d, -i, -s, -a.\n");
                 return WRONG_FLAG;
             }
-            printf("Wrong format!");
             return WRONG_FORMAT;
         }
     }
-    printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n");
     return NO_FLAG;
 }
 
 CODE_RESULT flag_d(FILE *input, FILE *output){
     char ch;
-    while ((ch = fgetc(input)) != EOF){
+    while ((ch = (char)fgetc(input)) != EOF){
         if(!isdigit(ch))
             fputc(ch, output);
     }
@@ -116,8 +104,8 @@ CODE_RESULT flag_d(FILE *input, FILE *output){
 CODE_RESULT flag_i(FILE *input, FILE *output){
     char ch;
     int counter = 0;
-    while ((ch = fgetc(input)) != EOF) {
-        if (islatin(ch)){
+    while ((ch = (char)fgetc(input)) != EOF) {
+        if (isalpha(ch)){
             counter++;
         }
         if (ch == '\n'){
@@ -132,8 +120,8 @@ CODE_RESULT flag_i(FILE *input, FILE *output){
 CODE_RESULT flag_s(FILE *input, FILE *output){
     char ch;
     int counter = 0;
-    while ((ch = fgetc(input)) != EOF) {
-        if (!islatin(ch) && !isdigit(ch) && ch != ' '){
+    while ((ch = (char)fgetc(input)) != EOF) {
+        if (!isalpha(ch) && !isdigit(ch) && ch != ' '){
             counter++;
         }
         if (ch == '\n'){
@@ -147,7 +135,7 @@ CODE_RESULT flag_s(FILE *input, FILE *output){
 
 CODE_RESULT flag_a(FILE *input, FILE *output){
     char ch;
-    while ((ch = fgetc(input)) != EOF){
+    while ((ch = (char)fgetc(input)) != EOF){
         if(!isdigit(ch)) {
             fprintf(output, "%x\n", ch);
         }
@@ -169,6 +157,8 @@ CODE_RESULT flag_caller(char** argv){
     n_status = strlen(argv[1]) == 3 ? 1 : 0;
     char *name = get_name(PATH_input);
     if(name == NULL){
+        free(name);
+        fclose(input);
         return MEMORY_ERROR;
     }
     if (n_status == 0) {
@@ -177,9 +167,15 @@ CODE_RESULT flag_caller(char** argv){
         output = fopen(PATH_transform(argv[3]), "w");
     }
     if(input == NULL){
+        free(name);
+        fclose(input);
+        fclose(output);
         return I_FILE_ERROR;
     }
     if(output == NULL){
+        free(name);
+        fclose(input);
+        fclose(output);
         return O_FILE_ERROR;
     }
     switch (flag) {
@@ -192,35 +188,61 @@ CODE_RESULT flag_caller(char** argv){
         case 'a':
             flag_a(input, output); break;
         default:
-            printf("Wrong flag given!"); break;
+            fclose(input);
+            fclose(output);
+            free(name);
+            return WRONG_FLAG;
     }
     fclose(input);
     fclose(output);
     free(name);
-    printf("DONE!");
     return OK;
 }
 
+void status(CODE_RESULT flag){
+    switch (flag) {
+        case WRONG_FLAG:
+            printf("Flag is not valid! Possible flags: -nd, -ni, -ns, -na, -d, -i, -s, -a.\n"); break;
+        case WRONG_FORMAT:
+            printf("Wrong format!\n"); break;
+        case NO_FLAG:
+            printf("Unable to find a flag! Please, put it after the number with symbol '-' or '/'.\n");
+        case I_FILE_ERROR:
+            printf("Unable to open input file!\n"); break;
+        case O_FILE_ERROR:
+            printf("Unable to open output file!\n"); break;
+        case NON_TXT:
+            printf("Non txt file given!\n"); break;
+        case MEMORY_ERROR:
+            printf("Memory error!\n"); break;
+        case OK:
+            printf("Done!\n"); break;
+    }
+}
+
+
 void greetings(){
-    printf("\n\n");
-    printf("----------------------------Available flags: -d, -i, -s, -a-----------------------------\n");
+    printf("----------------------------Available flags: -d, -i, -s -a------------------------------\n");
     printf("-------------------------You have to use '/' or '-' before flag-------------------------\n");
     printf("----------------------------You may use option 'n' before flag--------------------------\n");
     printf("--------------------Option 'n' allows you enter path to output file---------------------\n");
     printf("---------Otherwise it will be generated in program's directory with prefix 'out_'-------\n");
-    printf("------------Input format: ./[program] [key] [input_path] [OPTIONAL: output_path]--------\n");
+    printf("-------Input format for : ./[program] [key] [input_path] [OPTIONAL: output_path]--------\n");
     printf("--------------------------------------Flag info-----------------------------------------\n");
     printf("-----------------------'d' deletes all arabic numerals from file------------------------\n");
     printf("-----------------'i' counts how match latin letters in every string---------------------\n");
     printf("--------'s' counts symbols different from latin letters, digits and spaces--------------\n");
-    printf("-----------'a' replaces non-digits symbols to ASCII code with hex system----------------\n");
+    printf("-------------'a' replaces non-digits symbols to ASCII code in hex system----------------\n");
     printf("\n\n");
 }
 
 int main(int argc, char **argv){
     greetings();
     if(format_validation(argc, argv) == OK){
-        flag_caller(argv);
+        status(flag_caller(argv));
+    }
+    else{
+        status(format_validation(argc, argv));
     }
     return 0;
 }

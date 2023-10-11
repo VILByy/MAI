@@ -3,11 +3,13 @@
 #include "malloc.h"
 #include "ctype.h"
 
+#define MAX_LENGTH 300
+
 char letter(long long int number, int base){
     if (number % base >= 10){
-        return ('A' + (int)(number % base - 10));
+        return (char)('A' + (int)(number % base - 10));
     }
-    return ('0' + (int)(number % base));
+    return (char)('0' + (int)(number % base));
 }
 
 
@@ -63,9 +65,9 @@ void greetings(){
 
 int main(){
     greetings();
-    char input[300];
-    int base, flag;
-    while(1) {
+    char input[MAX_LENGTH];
+    int base, flag, is_ok = 0;
+    while(is_ok == 0) {
         flag = 0;
         scanf("%s", input);
         for (int i = 0; i < strlen(input); ++i) {
@@ -79,18 +81,21 @@ int main(){
             base = strtol(input, NULL, 10);
             if (base < 2 || base > 36) {
                 printf("Numeral can be in range 2 - 36\nPlease input allowed number: ");
-                continue;
+                flag = 1;
             }
-            break;
+            if (flag == 0){
+                is_ok = 1;
+            }
         }
     }
     long long max = 0;
-    char max_number[300];
-    while(1){
+    char max_number[MAX_LENGTH];
+    is_ok = 0;
+    while(is_ok == 0){
         flag = 0;
         scanf("%s", input);
         if (strcmp(input, "Stop") == 0){
-            break;
+            is_ok = 1;
         }
         for (int i = 0; i < strlen(input); ++i) {
             if(!isdigit(input[i]) && (input[i] < 'A' || input[i] > 'Z') && (input[i] != '-')){
@@ -103,13 +108,12 @@ int main(){
             flag = 1;
             printf("Given number can't be in given base\n");
         }
-        if (flag == 1){
-            continue;
-        }
-        long long number = strtoll(input, NULL, base);
-        if (llabs(number) > max){
-            max = llabs(number);
-            strcpy(max_number, input);
+        if (flag == 0){
+            long long number = strtoll(input, NULL, base);
+            if (llabs(number) > max){
+                max = llabs(number);
+                strcpy(max_number, input);
+            }
         }
     }
     printf("%s\n10: %lld\n", max_number, max);
