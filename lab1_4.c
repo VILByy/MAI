@@ -14,16 +14,6 @@ typedef enum{
     MEMORY_ERROR,
 }CODE_RESULT;
 
-char* PATH_transform(char* PATH){
-    int length = (int)strlen(PATH);
-    for (int i = 0; i < length; ++i) {
-        if (PATH[i] == '\\'){
-            PATH[i] = '/';
-        }
-    }
-    return PATH;
-}
-
 char* get_name(char *PATH){
     char* temp = strrchr(PATH, '/');
     char* name = (char*) malloc(sizeof(char) * strlen(temp) + 5);
@@ -46,7 +36,6 @@ char* get_name(char *PATH){
     }
     return name;
 }
-
 
 CODE_RESULT file_extension(char *name){
     int index = (int)strlen(name) - 1;
@@ -149,7 +138,7 @@ CODE_RESULT flag_a(FILE *input, FILE *output){
 
 CODE_RESULT flag_caller(char** argv){
     char flag = argv[1][strlen(argv[1]) - 1];
-    char* PATH_input = PATH_transform(argv[2]);
+    char* PATH_input = argv[2];
     FILE *input;
     FILE *output;
     input = fopen(PATH_input, "r");
@@ -164,7 +153,7 @@ CODE_RESULT flag_caller(char** argv){
     if (n_status == 0) {
         output = fopen(name, "w");
     } else {
-        output = fopen(PATH_transform(argv[3]), "w");
+        output = fopen(argv[3], "w");
     }
     if(input == NULL){
         free(name);

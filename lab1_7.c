@@ -71,15 +71,6 @@ char* all_lower(char* lexem){
     return lexem;
 }
 
-char* PATH_transform(char* PATH){
-    int length = (int)strlen(PATH);
-    for (int i = 0; i < length; ++i) {
-        if (PATH[i] == '\\'){
-            PATH[i] = '/';
-        }
-    }
-    return PATH;
-}
 
 CODE_RESULT file_extension(char *name){
     int index = (int)strlen(name) - 1;
@@ -159,9 +150,9 @@ char trash_skipper(FILE *input){
 }
 
 CODE_RESULT flag_r(char** argv) {
-    FILE *input_1 = fopen(PATH_transform(argv[2]), "r");
-    FILE *input_2 = fopen(PATH_transform(argv[3]), "r");
-    FILE *output = fopen(PATH_transform(argv[4]), "w");
+    FILE *input_1 = fopen(argv[2], "r");
+    FILE *input_2 = fopen(argv[3], "r");
+    FILE *output = fopen(argv[4], "w");
     if (input_1 == NULL) {
         fclose(input_1);
         fclose(input_2);
@@ -224,8 +215,8 @@ CODE_RESULT flag_r(char** argv) {
 }
 
 CODE_RESULT flag_a(char** argv){
-    char *PATH_input = PATH_transform(argv[2]);
-    char *PATH_output = PATH_transform(argv[3]);
+    char *PATH_input = argv[2];
+    char *PATH_output = argv[3];
     FILE *input = fopen(PATH_input, "r");
     FILE *output = fopen(PATH_output, "w");
     if (input == NULL){

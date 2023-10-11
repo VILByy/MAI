@@ -80,7 +80,7 @@ CODE_RESULT int_number_checker(char *s){
 CODE_RESULT double_number_checker(char *s){
     if (strlen(s) > 1){
         for (int i = 0; i < strlen(s); ++i) {
-            if ((s[i] < '0' || s[i] > '9') && s[i] != '.'){
+            if ((s[i] < '0' || s[i] > '9') && s[i] != '.' && s[i] != '-'){
                 return NAN_GIVEN;
             }
         }
@@ -161,7 +161,7 @@ CODE_RESULT format_validation(int argc, char **argv){
 CODE_RESULT equation(double a, double b, double c, double epsilon, double *x1, double *x2){
     // ax^2 + bx + c = 0
     double d = pow(b, 2) - 4 * a * c;
-    if (d < epsilon){
+    if (d < epsilon || fabs(a) < epsilon){
         return NO_ROOTS;
     }
     double sqr_d = sqrt(d);
