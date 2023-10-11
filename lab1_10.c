@@ -91,6 +91,7 @@ int main(){
     long long max = 0;
     char max_number[MAX_LENGTH];
     is_ok = 0;
+    int stop = 0;
     while(is_ok == 0){
         flag = 0;
         scanf("%s", input);
@@ -110,16 +111,22 @@ int main(){
         }
         if (flag == 0){
             long long number = strtoll(input, NULL, base);
+            stop = 1;
             if (llabs(number) > max){
                 max = llabs(number);
                 strcpy(max_number, input);
             }
         }
     }
-    printf("%s\n10: %lld\n", max_number, max);
-    for (int i = 1; i < 5; ++i) {
-        printf("%2d: %s\n", i * 9, converter(max, i * 9));
-        free(converter(max, i * 9));
+    if (stop == 1) {
+        printf("%s\n10: %lld\n", max_number, max);
+        for (int i = 1; i < 5; ++i) {
+            printf("%2d: %s\n", i * 9, converter(max, i * 9));
+            free(converter(max, i * 9));
+        }
+    }
+    else{
+        printf("Numbers were not given!\n");
     }
     return 0;
 }

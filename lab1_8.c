@@ -39,8 +39,27 @@ char trash_skipper(FILE *input){
     return c;
 }
 
+char* number_zero_skipper(char *number){
+    int length = (int)strlen(number);
+    char* res = calloc(length + 1, sizeof(char));
+    int index = 0;
+    for (int i = 0; i < length; ++i) {
+        if (number[i] == '0'){
+            realloc(res, length - i);
+        }
+        if (number[i] != '0'){
+            index = i;
+            break;
+        }
+    }
+    for (int i = 0; i < length - index; ++i) {
+        res[i] = number[index + i];
+    }
+    return res;
+}
+
 char* number_finder(FILE* input){
-    char* name = (char*) calloc(300, sizeof(char));
+    char* name = (char*) calloc(2, sizeof(char));
     if (name == NULL){
         return NULL;
     }
@@ -49,6 +68,7 @@ char* number_finder(FILE* input){
     while(flag == 0){
         c = (char)fgetc(input);
         c = (char)tolower(c);
+        realloc(name, i + 1);
         if(c == EOF){
             flag = 1;
         }
@@ -102,23 +122,23 @@ CODE_RESULT action(char** argv){
     FILE *input = fopen(PATH_transform(argv[1]), "r");
     FILE *output = fopen(PATH_transform(argv[2]), "w");
     if (input == NULL){
-        fclose(input);
         fclose(output);
         return INPUT_FILE_ERROR;
     }
     if (output == NULL){
         fclose(input);
-        fclose(output);
         return OUTPUT_FILE_ERROR;
     }
     int flag = 0;
     while (flag == 0){
         char* number = number_finder(input);
         if (number == NULL){
-            free(number);
+            fclose(input);
+            fclose(output);
             return MEMORY_ERROR;
         }
-        fprintf(output, "%s %d %lld\n", number, numeral_system(number), strtoll(number, NULL, numeral_system(number)));
+        fprintf(output, "%s %d %lld\n", number_zero_skipper(number), numeral_system(number), strtoll(number, NULL, numeral_system(number)));
+        free(number_zero_skipper(number));
         free(number);
         if (trash_skipper(input) == EOF)
             flag = 1;

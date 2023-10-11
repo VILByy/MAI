@@ -69,9 +69,18 @@ void max_min_swap(int *array, int a, int b, int array_size){
 CODE_RESULT second_task(){
     const int array_size = rand() % (10000 - 10) + 10;
     int *A = malloc(sizeof(int) * array_size);
+    if (A == NULL){
+        return MEMORY_ERROR;
+    }
     int *B = malloc(sizeof(int) * array_size);
+    if (B == NULL){
+        free(A);
+        return MEMORY_ERROR;
+    }
     int *C = malloc(sizeof(int) * array_size);
-    if (A == NULL || B == NULL || C == NULL){
+    if (C == NULL){
+        free(A);
+        free(B);
         return MEMORY_ERROR;
     }
     for (int i = 0; i < array_size; ++i) {
