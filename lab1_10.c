@@ -118,7 +118,7 @@ int main(){
     }
     printf("%s\n10: %lld\n", max_number, max);
     for (int i = 1; i < 5; ++i) {
-        printf("%d: %s\n", i * 9, converter(max, i * 9));
+        printf("%2d: %s\n", i * 9, converter(max, i * 9));
         free(converter(max, i * 9));
     }
     return 0;
