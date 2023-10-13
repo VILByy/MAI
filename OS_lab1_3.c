@@ -25,7 +25,6 @@ CODE_RESULT format_validation(int argc, char** argv){
     if (argc != 3){
         return WRONG_FORMAT;
     }
-
     if (strcmp(strrchr(argv[1], '.'), strrchr(argv[2], '.')) != 0){
         return DIF_EXT;
     }
