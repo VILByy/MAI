@@ -89,4 +89,5 @@ int main(int argc, char **argv) {
     } else {
         status(format_validation(argc, argv));
     }
+    return 0;
 }
