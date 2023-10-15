@@ -69,31 +69,31 @@ CODE_RESULT format_validation(int argc, char** argv){
     return OK;
 }
 
-long long int flag_xor8 (FILE *input){
+long int flag_xor8 (FILE *input){
     char c;
-    long long int res;
+    long int res;
     while (fread(&c, sizeof(char), 1, input)) {
         res = res ^ c;
     }
     return res;
 }
 
-long long int flag_xor32 (FILE *input){
-    uint32_t group1, group2, res = 0;
+long int flag_xor32 (FILE *input){
+    int32_t group1, group2, res = 0;
     int flag = 1;
     do {
         if (!fread(&group1, sizeof(int32_t), 1, input) || !fread(&group2, sizeof (int32_t), 1, input)){
             flag = 0;
         }
-        uint64_t temp = group1 ^ group2;
+        int32_t temp = group1 ^ group2;
         res = res ^ temp;
     } while (flag == 1);
     return res;
 }
 
-long long int flag_mask (FILE *input, char** argv){
-    long long int mask = strtol(argv[3], NULL, 16);
-    long long int res = 0;
+long int flag_mask (FILE *input, char** argv){
+    long int mask = strtol(argv[3], NULL, 16);
+    long int res = 0;
     char c;
     while (fread(&c, sizeof(char), 1, input)){
         if ((mask | c) == mask){
@@ -111,13 +111,13 @@ CODE_RESULT flag_caller(char** argv){
     }
     char* flag = argv[2];
     if (strcmp(flag, "xor32") == 0){
-        printf("%lld\n", flag_xor32(input));
+        printf("%ld\n", flag_xor32(input));
     }
     else if (strcmp(flag, "xor8") == 0){
-        printf("%lld\n", flag_xor8(input));
+        printf("%ld\n", flag_xor8(input));
     }
     else if(strcmp(flag, "mask") == 0){
-        printf("%lld\n", flag_mask(input, argv));
+        printf("%ld\n", flag_mask(input, argv));
     }
     fclose(input);
     return OK;
