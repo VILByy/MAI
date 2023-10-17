@@ -183,7 +183,7 @@ CODE_RESULT flag_caller(int argc, char** argv){
 
 int main(int argc, char **argv) {
     if (format_validation(argc, argv) == OK) {
-        flag_caller(argc, argv);
+        status(flag_caller(argc, argv));
     } else {
         status(format_validation(argc, argv));
     }
