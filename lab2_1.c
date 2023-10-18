@@ -86,16 +86,17 @@ int flag_l(char *str){
 
 char* flag_r(char *str){
     int length = str_len(str) - 1;
-    char* new_str = (char*) calloc(length, sizeof(char));
+    char* new_str = (char*) calloc(length + 1, sizeof(char));
     for (int i = 0; i < length; ++i) {
         new_str[i] = str[length - i - 1];
     }
+    new_str[length] = '\0';
     return new_str;
 }
 
 char* flag_u(char *str){
     int length = str_len(str);
-    char* new_str = (char*) calloc(length, sizeof(char));
+    char* new_str = (char*) calloc(length + 1, sizeof(char));
     for (int i = 0; i < length; ++i) {
         if (i % 2 == 1){
             new_str[i] = (char)toupper(str[i]);
@@ -104,12 +105,13 @@ char* flag_u(char *str){
             new_str[i] = str[i];
         }
     }
+    new_str[length] = '\0';
     return new_str;
 }
 
 char* flag_n(char *str){
     int length = str_len(str);
-    char* new_str = (char*) calloc(length, sizeof(char));
+    char* new_str = (char*) calloc(length + 1, sizeof(char));
     int n = 0;
     for (int i = 0; i < length; ++i) {
         if(isdigit(str[i])){
@@ -129,6 +131,7 @@ char* flag_n(char *str){
             n++;
         }
     }
+    new_str[n] = '\0';
     return new_str;
 }
 
@@ -136,7 +139,7 @@ char* flag_c(int argc, char** argv){
     int seed = atoi(argv[3]);
     srand(seed);
     int res_length = str_len(argv[2]);
-    char* new_str = (char*) calloc(res_length, sizeof(char));
+    char* new_str = (char*) calloc(res_length + 1, sizeof(char));
     for (int i = 0; i < res_length; ++i) {
 
         new_str[i] = argv[2][i];
@@ -153,11 +156,12 @@ char* flag_c(int argc, char** argv){
         int temp_length = str_len(argv[i]) - 1;
         int n = res_length - 1;
         res_length += temp_length;
-        realloc(new_str, res_length);
+        realloc(new_str, res_length + 1);
         for (int j = 0; j < temp_length; ++j) {
             new_str[n + j] = argv[i][j];
         }
     }
+    new_str[res_length - 1] = '\0';
     return new_str;
 }
 
@@ -182,10 +186,11 @@ CODE_RESULT flag_caller(int argc, char** argv){
 }
 
 int main(int argc, char **argv) {
-    if (format_validation(argc, argv) == OK) {
+    CODE_RESULT st = format_validation(argc, argv);
+    if (st == OK) {
         status(flag_caller(argc, argv));
     } else {
-        status(format_validation(argc, argv));
+        status(st);
     }
     return 0;
 }
