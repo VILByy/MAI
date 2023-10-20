@@ -7,6 +7,8 @@
 typedef enum{
     OK = 1,
     MEMORY_ERROR,
+    WRONG_NUMBER,
+    WRONG_BASE,
 }CODE_RESULT;
 
 void status(CODE_RESULT flag){
@@ -15,7 +17,33 @@ void status(CODE_RESULT flag){
             printf("Done\n"); break;
         case MEMORY_ERROR:
             printf("Memory error!\n"); break;
+        case WRONG_NUMBER:
+            printf("Given number can not be written in given base!\n"); break;
+        case WRONG_BASE:
+            printf("Wrong base given! Available base are in range 2-36.\n"); break;
     }
+}
+
+int range_checker(char* str, int base){
+    int flag = 0;
+    if (str[0] == '-'){
+        flag = 1;
+    }
+    if (base <= 10){
+        for (int i = 0; i < strlen(str) - flag; ++i) {
+            if (str[i + flag] - '0' >= base){
+                return 0;
+            }
+        }
+    }
+    else{
+        for (int i = 0; i < strlen(str) - flag; ++i){
+            if (!isdigit(str[i + flag]) && (str[i + flag] - 'A' >= base - 10)){
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 char letter(long long int number, int base){
@@ -32,6 +60,9 @@ int str_max(char* str1, char* str2){
 char* add_zeros(char* str, int n){
     int length = (int)strlen(str) + n;
     char* res = (char*) calloc(length, sizeof(char));
+    if (res == NULL){
+        return NULL;
+    }
     for (int i = 0; i < length; ++i) {
         if (i < n){
             res[i] = '0';
@@ -46,6 +77,9 @@ char* add_zeros(char* str, int n){
 char* number_zero_skipper(char *number){
     int length = (int)strlen(number);
     char* res = calloc(length + 1, sizeof(char));
+    if (res == NULL){
+        return NULL;
+    }
     int index = 0;
     for (int i = 0; i < length; ++i) {
         if (number[i] == '0'){
@@ -73,9 +107,18 @@ int number_get_int(char c){
 char* str_sum(char* prev_res, char* str, int base){
     int length = str_max(prev_res, str) + 1;
     prev_res = add_zeros(prev_res, length - (int)strlen(prev_res));
+    if (prev_res == NULL){
+        return NULL;
+    }
     str = add_zeros(str, length - (int)strlen(str));
+    if (str == NULL){
+        free(prev_res);
+        return NULL;
+    }
     char* res = (char*)calloc(length + 1, sizeof(char));
     if (res == NULL){
+        free(str);
+        free(prev_res);
         return NULL;
     }
     int next = 0;
@@ -92,23 +135,28 @@ char* str_sum(char* prev_res, char* str, int base){
     return res;
 }
 
-//TODO action
-//char --> CODE_RESULT
-//string validation
-//memory clearing for str_sum; number0_skip, str_sum
-
-char* action(int n, int cnt, ...){
-    char* res = "0";
+CODE_RESULT action(char** res, int n, int cnt, ...){
+    if (n < 2 || n > 36){
+        return WRONG_BASE;
+    }
     va_list str;
     va_start(str, cnt);
     for (int i = 0; i < cnt; ++i) {
-        res = str_sum(res, va_arg(str, char*), n);
+        char* temp = va_arg(str, char*);
+        if (range_checker(temp, n) == 0){
+            return WRONG_NUMBER;
+        }
+        *res = str_sum(*res, temp, n);
+        if (res == NULL){
+            return MEMORY_ERROR;
+        }
     }
-    return res;
+    return OK;
 }
 
-
 int main(){
-    printf("%s", action( 16, 2, "ABCDE", "A"));
+    char* res = "0";
+    status(action(&res, 36, 3, "ABCDE", "A", "ZXCZCXZCXZCX"));
+    printf("%s\n", res);
     return 0;
 }
